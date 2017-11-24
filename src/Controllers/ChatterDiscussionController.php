@@ -90,8 +90,8 @@ class ChatterDiscussionController extends Controller
         }
 
         // *** Let's gaurantee that we always have a generic slug *** //
-//        $slug = str_slug($request->title, '-');
-        $slug = ChatterHelper::hangul2latin($request->title);
+        $slug = ChatterHelper::hangulSlug($request->title);
+        $slug = str_slug($slug, '-');
 
         $discussion_exists = Models::discussion()->where('slug', '=', $slug)->first();
         $incrementer = 1;
