@@ -6,6 +6,7 @@ use Auth;
 use Carbon\Carbon;
 use DevDojo\Chatter\Events\ChatterAfterNewDiscussion;
 use DevDojo\Chatter\Events\ChatterBeforeNewDiscussion;
+use DevDojo\Chatter\Helpers\ChatterHelper;
 use DevDojo\Chatter\Models\Models;
 use Event;
 use Illuminate\Http\Request;
@@ -89,7 +90,8 @@ class ChatterDiscussionController extends Controller
         }
 
         // *** Let's gaurantee that we always have a generic slug *** //
-        $slug = str_slug($request->title, '-');
+//        $slug = str_slug($request->title, '-');
+        $slug = ChatterHelper::hangul2latin($request->title);
 
         $discussion_exists = Models::discussion()->where('slug', '=', $slug)->first();
         $incrementer = 1;
