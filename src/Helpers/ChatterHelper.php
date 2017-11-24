@@ -118,15 +118,16 @@ class ChatterHelper
     public static function hangulSlug($string)
     {
         $eng = "";
-        for ($i = 0; $i < strlen($string); $i++) {
-            if (ord($string[$i]) > 127) {
-                $hanchar = substr($string, $i, 2);
-                $eng .= self::hangulChar2latin($hanchar);
-                $i++;
+        $length = mb_strlen($string);
+        for ($i = 0; $i < $length; $i++) {
+            $char = mb_substr($string, $i, 1);
+            $code = ord($char);
+            if ($code < 127) {
+                $eng .= $char;
                 continue;
             }
 
-            $eng .= $string[$i];
+            $eng .= self::hangulChar2latin($char);
         }
 
         return $eng;
