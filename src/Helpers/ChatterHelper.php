@@ -117,10 +117,10 @@ class ChatterHelper
             $output .= $prncTable[0][$cho];
         }
         if (!empty($prncTable[1][$jung])) {
-            $output .= $prncTable[0][$jung];
+            $output .= $prncTable[1][$jung];
         }
         if (!empty($prncTable[2][$jong])) {
-            $output .= $prncTable[0][$jong];
+            $output .= $prncTable[2][$jong];
         }
 
         if (empty($output)) {
