@@ -90,21 +90,24 @@ class ChatterDiscussionController extends Controller
         }
 
         // *** Let's gaurantee that we always have a generic slug *** //
-        $slug = ChatterHelper::hangulSlug($request->title);
-        $slug = str_slug($slug, '-');
+//        $slug = ChatterHelper::hangulSlug($request->title);
+//        $slug = str_slug($slug, '-');
+//
+//        $discussion_exists = Models::discussion()->where('slug', '=', $slug)->first();
+//        $incrementer = 1;
+//        $new_slug = $slug;
+//        while (isset($discussion_exists->id)) {
+//            $new_slug = $slug.'-'.$incrementer;
+//            $discussion_exists = Models::discussion()->where('slug', '=', $new_slug)->first();
+//            $incrementer += 1;
+//        }
+//
+//        if ($slug != $new_slug) {
+//            $slug = $new_slug;
+//        }
 
-        $discussion_exists = Models::discussion()->where('slug', '=', $slug)->first();
-        $incrementer = 1;
-        $new_slug = $slug;
-        while (isset($discussion_exists->id)) {
-            $new_slug = $slug.'-'.$incrementer;
-            $discussion_exists = Models::discussion()->where('slug', '=', $new_slug)->first();
-            $incrementer += 1;
-        }
-
-        if ($slug != $new_slug) {
-            $slug = $new_slug;
-        }
+        // create temporary slug
+        $slug = md5(time());
 
         $new_discussion = [
             'title'               => $request->title,
@@ -120,6 +123,12 @@ class ChatterDiscussionController extends Controller
         }
 
         $discussion = Models::discussion()->create($new_discussion);
+
+        // create discussion slug based on its id
+        $slug = 'discussion-' . $discussion->id;
+
+        $discussion->slug = $slug;
+        $discussion->save();
 
         $new_post = [
             'chatter_discussion_id' => $discussion->id,
