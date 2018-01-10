@@ -112,7 +112,22 @@ class ChatterHelper
         $jung = (int)($unicode / 28);
         $jong = $unicode % 28;
         //-- 영문변환리턴 (아래 코드를 이용하면 '한'이 'han'과 같은식으로 리턴됨)
-        return ($prncTable[0][$cho] . $prncTable[1][$jung] . $prncTable[2][$jong]);
+        $output = '';
+        if (!empty($prncTable[0][$cho])) {
+            $output .= $prncTable[0][$cho];
+        }
+        if (!empty($prncTable[1][$jung])) {
+            $output .= $prncTable[0][$jung];
+        }
+        if (!empty($prncTable[2][$jong])) {
+            $output .= $prncTable[0][$jong];
+        }
+
+        if (empty($output)) {
+            return $string;
+        }
+
+        return $output;
     }
 
     public static function hangulSlug($string)
