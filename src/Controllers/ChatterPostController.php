@@ -51,6 +51,9 @@ class ChatterPostController extends Controller
         $stripped_tags_body = ['body' => strip_tags($request->body)];
         $validator = Validator::make($stripped_tags_body, [
             'body' => 'required|min:10',
+        ], [
+            'body.required' => '글을 입력하세요',
+            'body.min' => '글은 최소 :min글자 이상 쓰셔야 합니다',
         ]);
 
         Event::fire(new ChatterBeforeNewResponse($request, $validator));
@@ -64,10 +67,9 @@ class ChatterPostController extends Controller
 
         if (config('chatter.security.limit_time_between_posts')) {
             if ($this->notEnoughTimeBetweenPosts()) {
-                $minute_copy = (config('chatter.security.time_between_posts') == 1) ? ' minute' : ' minutes';
                 $chatter_alert = [
                     'chatter_alert_type' => 'danger',
-                    'chatter_alert'      => 'In order to prevent spam, please allow at least '.config('chatter.security.time_between_posts').$minute_copy.' in between submitting content.',
+                    'chatter_alert'      => config('chatter.security.time_between_posts').'분후에 작성이 가능합니다(스팸방지)',
                     ];
 
                 return back()->with($chatter_alert)->withInput();
@@ -103,7 +105,7 @@ class ChatterPostController extends Controller
 
             $chatter_alert = [
                 'chatter_alert_type' => 'success',
-                'chatter_alert'      => 'Response successfully submitted to '.config('chatter.titles.discussion').'.',
+                'chatter_alert'      => '성공적으로 글이 생성되었습니다',
                 ];
 
             return redirect('/'.config('chatter.routes.home').'/'.config('chatter.routes.discussion').'/'.$category->slug.'/'.$discussion->slug)->with($chatter_alert);
@@ -153,6 +155,9 @@ class ChatterPostController extends Controller
         $stripped_tags_body = ['body' => strip_tags($request->body)];
         $validator = Validator::make($stripped_tags_body, [
             'body' => 'required|min:10',
+        ], [
+            'body.required' => '글을 입력하세요',
+            'body.min' => '글은 최소 :min글자 이상 쓰셔야 합니다',
         ]);
 
         if ($validator->fails()) {
@@ -173,7 +178,7 @@ class ChatterPostController extends Controller
 
             $chatter_alert = [
                 'chatter_alert_type' => 'success',
-                'chatter_alert'      => 'Successfully updated the '.config('chatter.titles.discussion').'.',
+                'chatter_alert'      => '성공적으로 업데이트 되었습니다',
                 ];
 
             return redirect('/'.config('chatter.routes.home').'/'.config('chatter.routes.discussion').'/'.$category->slug.'/'.$discussion->slug)->with($chatter_alert);
@@ -212,7 +217,7 @@ class ChatterPostController extends Controller
 
             return redirect('/'.config('chatter.routes.home'))->with([
                 'chatter_alert_type' => 'success',
-                'chatter_alert'      => 'Successfully deleted the response and '.strtolower(config('chatter.titles.discussion')).'.',
+                'chatter_alert'      => '성공적으로 삭제 되었습니다',
             ]);
         }
 
@@ -222,7 +227,7 @@ class ChatterPostController extends Controller
 
         return redirect($url)->with([
             'chatter_alert_type' => 'success',
-            'chatter_alert'      => 'Successfully deleted the response from the '.config('chatter.titles.discussion').'.',
+            'chatter_alert'      => '성공적으로 삭제 되었습니다',
         ]);
     }
 }

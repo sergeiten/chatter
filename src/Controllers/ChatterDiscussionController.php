@@ -64,6 +64,11 @@ class ChatterDiscussionController extends Controller
             'title'               => 'required|min:5|max:255',
             'body_content'        => 'required|min:10',
             'chatter_category_id' => 'required',
+        ], [
+            'title.required' => '제목을 입력하세요',
+            'body_content.required' => '글을 입력하세요',
+            'body_content.min' => '글은 최소 :min글자 이상 쓰셔야 합니다',
+            'chatter_category_id.required' => '카테고리 선택은 필수사항입니다',
         ]);
 
         Event::fire(new ChatterBeforeNewDiscussion($request, $validator));
@@ -79,11 +84,10 @@ class ChatterDiscussionController extends Controller
 
         if (config('chatter.security.limit_time_between_posts')) {
             if ($this->notEnoughTimeBetweenDiscussion()) {
-                $minute_copy = (config('chatter.security.time_between_posts') == 1) ? ' minute' : ' minutes';
                 $chatter_alert = [
                     'chatter_alert_type' => 'danger',
-                    'chatter_alert'      => 'In order to prevent spam, please allow at least '.config('chatter.security.time_between_posts').$minute_copy.' in between submitting content.',
-                    ];
+                    'chatter_alert'      => config('chatter.security.time_between_posts').'분후에 작성이 가능합니다(스팸방지)',
+                ];
 
                 return redirect('/'.config('chatter.routes.home'))->with($chatter_alert)->withInput();
             }
@@ -115,7 +119,7 @@ class ChatterDiscussionController extends Controller
             'user_id'             => $user_id,
             'slug'                => $slug,
             'color'               => $request->color,
-            ];
+        ];
 
         $category = Models::category()->find($request->chatter_category_id);
         if (!isset($category->slug)) {
@@ -134,10 +138,10 @@ class ChatterDiscussionController extends Controller
             'chatter_discussion_id' => $discussion->id,
             'user_id'               => $user_id,
             'body'                  => $request->body,
-            ];
+        ];
 
         if (config('chatter.editor') == 'simplemde'):
-           $new_post['markdown'] = 1;
+            $new_post['markdown'] = 1;
         endif;
 
         // add the user to automatically be notified when new posts are submitted
@@ -153,15 +157,15 @@ class ChatterDiscussionController extends Controller
 
             $chatter_alert = [
                 'chatter_alert_type' => 'success',
-                'chatter_alert'      => 'Successfully created a new '.config('chatter.titles.discussion').'.',
-                ];
+                'chatter_alert'      => '성공적으로 글이 생성되었습니다',
+            ];
 
             return redirect('/'.config('chatter.routes.home').'/'.config('chatter.routes.discussion').'/'.$category->slug.'/'.$slug)->with($chatter_alert);
         } else {
             $chatter_alert = [
                 'chatter_alert_type' => 'danger',
                 'chatter_alert'      => 'Whoops :( There seems to be a problem creating your '.config('chatter.titles.discussion').'.',
-                ];
+            ];
 
             return redirect('/'.config('chatter.routes.home').'/'.config('chatter.routes.discussion').'/'.$category->slug.'/'.$slug)->with($chatter_alert);
         }
@@ -295,7 +299,7 @@ class ChatterDiscussionController extends Controller
 
             return response()->json(0);
         } else { // otherwise add it
-             $discussion->users()->attach($user_id);
+            $discussion->users()->attach($user_id);
 
             return response()->json(1);
         }
