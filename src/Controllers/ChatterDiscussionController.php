@@ -11,7 +11,7 @@ use DevDojo\Chatter\Models\Models;
 use Event;
 use Illuminate\Routing\Controller as Controller;
 use Validator;
-use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 
 class ChatterDiscussionController extends Controller
 {
