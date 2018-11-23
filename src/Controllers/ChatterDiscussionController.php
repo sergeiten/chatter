@@ -9,9 +9,9 @@ use DevDojo\Chatter\Events\ChatterBeforeNewDiscussion;
 use DevDojo\Chatter\Helpers\ChatterHelper;
 use DevDojo\Chatter\Models\Models;
 use Event;
-use http\Env\Request;
 use Illuminate\Routing\Controller as Controller;
 use Validator;
+use Illuminate\Http\Response;
 
 class ChatterDiscussionController extends Controller
 {
@@ -193,7 +193,7 @@ class ChatterDiscussionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($category, $slug = null)
+    public function show(Request $request, $category, $slug = null)
     {
         if (!isset($category) || !isset($slug)) {
             return redirect(config('chatter.routes.home'));
@@ -209,7 +209,7 @@ class ChatterDiscussionController extends Controller
         // because we get it in separate query
         // the origin post is the first post in the first page
         $skip = 0;
-        if (Request::has('page') && Request::get('page') == 1) {
+        if ($request->has('page') && $request->get('page') == 1) {
             $skip = 1;
         }
         $posts = Models::post()
@@ -217,7 +217,7 @@ class ChatterDiscussionController extends Controller
             ->where('chatter_discussion_id', '=', $discussion->id)
             ->orderBy('created_at', 'ASC')
             ->skip($skip)
-            ->paginate(10);
+            ->paginate($skip + 10);
 
         // get origin post in order to change display UI
         $originPost = Models::post()->where('chatter_discussion_id', '=', $discussion->id)->orderBy('created_at', 'DESC')->first();
