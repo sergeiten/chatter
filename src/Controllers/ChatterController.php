@@ -3,6 +3,7 @@
 namespace DevDojo\Chatter\Controllers;
 
 use Auth;
+use DevDojo\Chatter\Helpers\ChatterHelper as Helper;
 use DevDojo\Chatter\Models\Models;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as Controller;
@@ -13,7 +14,11 @@ class ChatterController extends Controller
     {
         $discussions = $this->getDiscussions($slug, $request->get('query'), config('chatter.paginate.num_of_results'));
 
-        $categories = Models::category()->all();
+        $categories = Models::category()->get();
+        $categoriesMenu = Helper::categoriesMenu(array_filter($categories->toArray(), function ($item) {
+            return $item['parent_id'] === null;
+        }));
+
         $chatter_editor = config('chatter.editor');
 
         if ($chatter_editor == 'simplemde') {
@@ -21,7 +26,7 @@ class ChatterController extends Controller
             \App::register('GrahamCampbell\Markdown\MarkdownServiceProvider');
         }
 
-        return view('chatter::home', compact('discussions', 'categories', 'chatter_editor'));
+        return view('chatter::home', compact('discussions', 'categories', 'categoriesMenu', 'chatter_editor'));
     }
 
     private function getDiscussions($slug = '', $search, $pagination_results) {

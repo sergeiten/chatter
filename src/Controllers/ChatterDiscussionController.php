@@ -9,7 +9,7 @@ use DevDojo\Chatter\Events\ChatterBeforeNewDiscussion;
 use DevDojo\Chatter\Helpers\ChatterHelper;
 use DevDojo\Chatter\Models\Models;
 use Event;
-use Illuminate\Http\Request;
+use http\Env\Request;
 use Illuminate\Routing\Controller as Controller;
 use Validator;
 
@@ -150,7 +150,7 @@ class ChatterDiscussionController extends Controller
         $post = Models::post()->create($new_post);
 
         if ($post->id) {
-            Event::fire(new ChatterAfterNewDiscussion($request));
+            Event::fire(new ChatterAfterNewDiscussion($request, $discussion, $post));
             if (function_exists('chatter_after_new_discussion')) {
                 chatter_after_new_discussion($request);
             }
@@ -199,16 +199,28 @@ class ChatterDiscussionController extends Controller
             return redirect(config('chatter.routes.home'));
         }
 
-        $discussion = Models::discussion()->where('slug', '=', $slug)->first();
-        if (is_null($discussion)) {
-            abort(404);
-        }
+        $discussion = Models::discussion()->where('slug', '=', $slug)->firstOrFail();
 
         $discussion_category = Models::category()->find($discussion->chatter_category_id);
         if ($category != $discussion_category->slug) {
             return redirect(config('chatter.routes.home').'/'.config('chatter.routes.discussion').'/'.$discussion_category->slug.'/'.$discussion->slug);
         }
-        $posts = Models::post()->with('user')->where('chatter_discussion_id', '=', $discussion->id)->orderBy('created_at', 'ASC')->paginate(10);
+        // we have to skip the first post (origin)
+        // because we get it in separate query
+        // the origin post is the first post in the first page
+        $skip = 0;
+        if (Request::has('page') && Request::get('page') == 1) {
+            $skip = 1;
+        }
+        $posts = Models::post()
+            ->with('user')
+            ->where('chatter_discussion_id', '=', $discussion->id)
+            ->orderBy('created_at', 'ASC')
+            ->skip($skip)
+            ->paginate(10);
+
+        // get origin post in order to change display UI
+        $originPost = Models::post()->where('chatter_discussion_id', '=', $discussion->id)->orderBy('created_at', 'DESC')->first();
 
         $chatter_editor = config('chatter.editor');
 
@@ -217,7 +229,9 @@ class ChatterDiscussionController extends Controller
             \App::register('GrahamCampbell\Markdown\MarkdownServiceProvider');
         }
 
-        return view('chatter::discussion', compact('discussion', 'posts', 'chatter_editor'));
+        $discussion->increment('views');
+        
+        return view('chatter::discussion', compact('discussion', 'posts', 'chatter_editor', 'originPost'));
     }
 
     /**

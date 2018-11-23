@@ -1,12 +1,12 @@
 @extends(Config::get('chatter.master_file_extend'))
 
 @section(Config::get('chatter.yields.head'))
-    <link href="/vendor/devdojo/chatter/assets/vendor/spectrum/spectrum.css" rel="stylesheet">
-	<link href="/vendor/devdojo/chatter/assets/css/chatter.css" rel="stylesheet">
+    <link href="{{ url('/vendor/devdojo/chatter/assets/vendor/spectrum/spectrum.css') }}" rel="stylesheet">
+	<link href="{{ url('/vendor/devdojo/chatter/assets/css/chatter.css') }}" rel="stylesheet">
 	@if($chatter_editor == 'simplemde')
-		<link href="/vendor/devdojo/chatter/assets/css/simplemde.min.css" rel="stylesheet">
+		<link href="{{ url('/vendor/devdojo/chatter/assets/css/simplemde.min.css') }}" rel="stylesheet">
 	@elseif($chatter_editor == 'trumbowyg')
-		<link href="/vendor/devdojo/chatter/assets/vendor/trumbowyg/ui/trumbowyg.css" rel="stylesheet">
+		<link href="{{ url('/vendor/devdojo/chatter/assets/vendor/trumbowyg/ui/trumbowyg.css') }}" rel="stylesheet">
 		<style>
 			.trumbowyg-box, .trumbowyg-editor {
 				margin: 0px auto;
@@ -63,12 +63,7 @@
 	    		<div class="chatter_sidebar">
 					<button class="btn btn-primary" id="new_discussion_btn"><i class="chatter-new"></i> New {{ Config::get('chatter.titles.discussion') }}</button>
 					<a href="/{{ Config::get('chatter.routes.home') }}"><i class="chatter-bubble"></i> All {{ Config::get('chatter.titles.discussions') }}</a>
-					<ul class="nav nav-pills nav-stacked">
-						<?php $categories = DevDojo\Chatter\Models\Models::category()->all(); ?>
-						@foreach($categories as $category)
-							<li><a href="/{{ Config::get('chatter.routes.home') }}/{{ Config::get('chatter.routes.category') }}/{{ $category->slug }}"><div class="chatter-box" style="background-color:{{ $category->color }}"></div> {{ $category->name }}</a></li>
-						@endforeach
-					</ul>
+          {!! $categoriesMenu !!}
 				</div>
 				<!-- END SIDEBAR -->
 	    	</div>
@@ -201,8 +196,8 @@
 
 
 @if( $chatter_editor == 'tinymce' || empty($chatter_editor) )
-	<script src="/vendor/devdojo/chatter/assets/vendor/tinymce/tinymce.min.js"></script>
-	<script src="/vendor/devdojo/chatter/assets/js/tinymce.js"></script>
+	<script src="{{ url('/vendor/devdojo/chatter/assets/vendor/tinymce/tinymce.min.js') }}"></script>
+	<script src="{{ url('/vendor/devdojo/chatter/assets/js/tinymce.js') }}"></script>
 	<script>
 		var my_tinymce = tinyMCE;
 		$('document').ready(function(){
@@ -212,25 +207,25 @@
 		});
 	</script>
 @elseif($chatter_editor == 'simplemde')
-	<script src="/vendor/devdojo/chatter/assets/js/simplemde.min.js"></script>
-	<script src="/vendor/devdojo/chatter/assets/js/chatter_simplemde.js"></script>
+	<script src="{{ url('/vendor/devdojo/chatter/assets/js/simplemde.min.js') }}"></script>
+	<script src="{{ url('/vendor/devdojo/chatter/assets/js/chatter_simplemde.js') }}"></script>
 @elseif($chatter_editor == 'trumbowyg')
-	<script src="/vendor/devdojo/chatter/assets/vendor/trumbowyg/trumbowyg.min.js"></script>
-	<script src="/vendor/devdojo/chatter/assets/vendor/trumbowyg/plugins/preformatted/trumbowyg.preformatted.min.js"></script>
-	<script src="/vendor/devdojo/chatter/assets/js/trumbowyg.js"></script>
+	<script src="{{ url('/vendor/devdojo/chatter/assets/vendor/trumbowyg/trumbowyg.min.js') }}"></script>
+	<script src="{{ url('/vendor/devdojo/chatter/assets/vendor/trumbowyg/plugins/preformatted/trumbowyg.preformatted.min.js') }}"></script>
+	<script src="{{ url('/vendor/devdojo/chatter/assets/js/trumbowyg.js') }}"></script>
 @endif
 
-<script src="/vendor/devdojo/chatter/assets/vendor/spectrum/spectrum.js"></script>
-<script src="/vendor/devdojo/chatter/assets/js/chatter.js"></script>
+<script src="{{ url('/vendor/devdojo/chatter/assets/vendor/spectrum/spectrum.js') }}"></script>
+<script src="{{ url('/vendor/devdojo/chatter/assets/js/chatter.js') }}"></script>
 <script>
 	$('document').ready(function(){
 
-		$('.chatter-close').click(function(){
+		$('.chatter-close, #cancel_discussion').click(function(){
 			$('#new_discussion').slideUp();
 		});
-		$('#new_discussion_btn, #cancel_discussion').click(function(){
+		$('#new_discussion_btn').click(function(){
 			@if(Auth::guest())
-				window.location.href = "/{{ Config::get('chatter.routes.home') }}/login";
+				window.location.href = "{{ route('login') }}";
 			@else
 				$('#new_discussion').slideDown();
 				$('#title').focus();
