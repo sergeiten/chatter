@@ -126,12 +126,15 @@ class ChatterDiscussionController extends Controller
             $category = Models::category()->first();
         }
 
+        $lastDiscussion = Models::discussion()->select('order')->orderBy('order', 'DESC')->first();
+
         $discussion = Models::discussion()->create($new_discussion);
 
         // create discussion slug based on its id
         $slug = 'discussion-' . $discussion->id;
 
         $discussion->slug = $slug;
+        $discussion->order = $lastDiscussion->order+1;
         $discussion->save();
 
         $new_post = [
@@ -208,16 +211,18 @@ class ChatterDiscussionController extends Controller
         // we have to skip the first post (origin)
         // because we get it in separate query
         // the origin post is the first post in the first page
-        $skip = 0;
-        if ($request->has('page') && $request->get('page') == 1) {
-            $skip = 1;
-        }
+        $limit = 10;
+        $page = $request->get('page', 1);
+        $skip = $page == 1 ? 1 : (($page - 1) * $limit) + 1;
         $posts = Models::post()
             ->with('user')
             ->where('chatter_discussion_id', '=', $discussion->id)
             ->orderBy('created_at', 'ASC')
             ->skip($skip)
-            ->paginate($skip + 10);
+            ->take($limit)
+            ->get();
+
+        $posts = new Paginator($posts->all(), $posts->count(), $page);
 
         // get origin post in order to change display UI
         $originPost = Models::post()->where('chatter_discussion_id', '=', $discussion->id)->orderBy('created_at', 'DESC')->first();
