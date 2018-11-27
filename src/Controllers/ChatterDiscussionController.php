@@ -9,6 +9,7 @@ use DevDojo\Chatter\Events\ChatterBeforeNewDiscussion;
 use DevDojo\Chatter\Helpers\ChatterHelper;
 use DevDojo\Chatter\Models\Models;
 use Event;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Routing\Controller as Controller;
 use Validator;
 use Illuminate\Http\Request;
