@@ -127,7 +127,12 @@ class ChatterDiscussionController extends Controller
             $category = Models::category()->first();
         }
 
-        $lastDiscussion = Models::discussion()->select('order')->orderBy('order', 'DESC')->first();
+        $lastDiscussion = Models
+            ::discussion()
+            ->select('order')
+            ->where('chatter_category_id', $category->id)
+            ->orderBy('order', 'DESC')
+            ->first();
 
         $discussion = Models::discussion()->create($new_discussion);
 
