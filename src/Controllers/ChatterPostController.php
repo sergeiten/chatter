@@ -215,7 +215,7 @@ class ChatterPostController extends Controller
             $post->discussion->posts()->delete();
             $post->discussion()->delete();
 
-            return redirect('/'.config('chatter.routes.home'))->with([
+            return redirect('/'.config('chatter.routes.home').'/'.config('chatter.routes.discussion').'/'.$post->discussion->category->slug)->with([
                 'chatter_alert_type' => 'success',
                 'chatter_alert'      => '성공적으로 삭제 되었습니다',
             ]);
