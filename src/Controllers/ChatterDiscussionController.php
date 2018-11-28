@@ -231,7 +231,7 @@ class ChatterDiscussionController extends Controller
         $posts = new Paginator($posts->all(), $posts->count(), $page);
 
         // get origin post in order to change display UI
-        $originPost = Models::post()->where('chatter_discussion_id', '=', $discussion->id)->orderBy('created_at', 'DESC')->first();
+        $originPost = Models::post()->where('chatter_discussion_id', '=', $discussion->id)->orderBy('created_at', 'ASC')->first();
 
         $chatter_editor = config('chatter.editor');
 
