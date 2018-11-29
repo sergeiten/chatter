@@ -212,7 +212,7 @@ class ChatterPostController extends Controller
         }
 
         if ($post->discussion->posts()->oldest()->first()->id === $post->id) {
-            $url = '/'.config('chatter.routes.home').'/'.config('chatter.routes.discussion').'/'.$post->discussion->category->slug;
+            $url = '/'.config('chatter.routes.home').'/'.config('chatter.routes.category').'/'.$post->discussion->category->slug;
 
             $post->discussion->posts()->delete();
             $post->discussion()->delete();
