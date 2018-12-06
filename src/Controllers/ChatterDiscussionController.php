@@ -140,7 +140,7 @@ class ChatterDiscussionController extends Controller
         $slug = 'discussion-' . $discussion->id;
 
         $discussion->slug = $slug;
-        $discussion->order = $lastDiscussion->order+1;
+        $discussion->order = $lastDiscussion ? $lastDiscussion->order+1 : 1;
         $discussion->save();
 
         $new_post = [
