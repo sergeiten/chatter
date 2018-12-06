@@ -180,14 +180,14 @@ class ChatterPostController extends Controller
                 'chatter_alert'      => '성공적으로 업데이트 되었습니다',
                 ];
 
-            return redirect('/'.config('chatter.routes.home').'/'.config('chatter.routes.category').'/'.$category->slug.'/'.$discussion->slug)->with($chatter_alert);
+            return redirect('/'.config('chatter.routes.home').'/'.config('chatter.routes.discussion').'/'.$category->slug.'/'.$discussion->slug)->with($chatter_alert);
         } else {
             $chatter_alert = [
                 'chatter_alert_type' => 'danger',
                 'chatter_alert'      => 'Nah ah ah... Could not update your response. Make sure you\'re not doing anything shady.',
                 ];
 
-            return redirect('/'.config('chatter.routes.home').'/'.config('chatter.routes.category').'/'.$category->slug.'/')
+            return redirect('/'.config('chatter.routes.home').'/'.config('chatter.routes.discussion').'/'.$category->slug.'/')
                 ->with($chatter_alert);
         }
     }
@@ -207,7 +207,7 @@ class ChatterPostController extends Controller
         if ($request->user()->id !== (int) $post->user_id || !$request->user()->isAdmin()) {
             $url = '/'.config('chatter.routes.home').'/'.config('chatter.routes.category').'/'.$post->discussion->category->slug;
 
-            return redirect('/'. $url)->with([
+            return redirect('/'.$url)->with([
                 'chatter_alert_type' => 'danger',
                 'chatter_alert'      => 'Nah ah ah... Could not delete the response. Make sure you\'re not doing anything shady.',
             ]);
