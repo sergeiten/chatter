@@ -165,30 +165,30 @@ class ChatterPostController extends Controller
         }
 
         $post = Models::post()->find($id);
-        if (!Auth::guest() && (Auth::user()->id == $post->user_id)) {
+        $discussion = Models::discussion()->find($post->chatter_discussion_id);
+        $category = Models::category()->find($discussion->chatter_category_id);
+
+        if (!isset($category->slug)) {
+            $category = Models::category()->first();
+        }
+        if (!Auth::guest() && (Auth::user()->id == $post->user_id || Auth::user()->isAdmin())) {
             $post->body = Purifier::clean($request->body);
             $post->save();
-
-            $discussion = Models::discussion()->find($post->chatter_discussion_id);
-
-            $category = Models::category()->find($discussion->chatter_category_id);
-            if (!isset($category->slug)) {
-                $category = Models::category()->first();
-            }
 
             $chatter_alert = [
                 'chatter_alert_type' => 'success',
                 'chatter_alert'      => '성공적으로 업데이트 되었습니다',
                 ];
 
-            return redirect('/'.config('chatter.routes.home').'/'.config('chatter.routes.discussion').'/'.$category->slug.'/'.$discussion->slug)->with($chatter_alert);
+            return redirect('/'.config('chatter.routes.home').'/'.config('chatter.routes.category').'/'.$category->slug.'/'.$discussion->slug)->with($chatter_alert);
         } else {
             $chatter_alert = [
                 'chatter_alert_type' => 'danger',
                 'chatter_alert'      => 'Nah ah ah... Could not update your response. Make sure you\'re not doing anything shady.',
                 ];
 
-            return redirect('/'.config('chatter.routes.home'))->with($chatter_alert);
+            return redirect('/'.config('chatter.routes.home').'/'.config('chatter.routes.category').'/'.$category->slug.'/')
+                ->with($chatter_alert);
         }
     }
 
@@ -204,8 +204,10 @@ class ChatterPostController extends Controller
     {
         $post = Models::post()->with('discussion')->findOrFail($id);
 
-        if ($request->user()->id !== (int) $post->user_id) {
-            return redirect('/'.config('chatter.routes.home'))->with([
+        if ($request->user()->id !== (int) $post->user_id || !$request->user()->isAdmin()) {
+            $url = '/'.config('chatter.routes.home').'/'.config('chatter.routes.category').'/'.$post->discussion->category->slug;
+
+            return redirect('/'. $url)->with([
                 'chatter_alert_type' => 'danger',
                 'chatter_alert'      => 'Nah ah ah... Could not delete the response. Make sure you\'re not doing anything shady.',
             ]);
